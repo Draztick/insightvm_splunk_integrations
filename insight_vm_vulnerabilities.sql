@@ -27,7 +27,7 @@ from "postgres"."public"."dim_asset" "da"
     join "postgres"."public"."dim_vulnerability" "dv" using ("vulnerability_id")
     join "postgres"."public"."fact_vulnerability" "fv" using ("vulnerability_id")
 where
-    "pKey"."checkpoint" > 1596315214
+    "pKey"."checkpoint" > ?
 group by
     "da"."mac_address",
     "pKey"."checkpoint",
