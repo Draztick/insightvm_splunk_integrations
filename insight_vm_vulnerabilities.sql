@@ -1,11 +1,16 @@
 WITH "pKey" AS (
     SELECT 
         "da"."asset_id" "asset_id",
-        concat(extract(epoch FROM "fv"."first_discovered"), "da"."asset_id"::text)::dec "checkpoint"
+        "dv"."vulnerability_id" "vulnerability_id",
+        concat(extract(epoch FROM "fv"."first_discovered")::text, "da"."asset_id"::text)::dec "checkpoint"
     FROM "postgres"."public"."dim_asset" "da"
         JOIN "postgres"."public"."fact_asset_vulnerability_instance" "favi" USING ("asset_id")
         JOIN "postgres"."public"."dim_vulnerability" "dv" USING ("vulnerability_id")
         JOIN "postgres"."public"."fact_vulnerability" "fv" USING ("vulnerability_id")
+    GROUP BY
+        "da"."asset_id",
+        "dv"."vulnerability_id",
+        "fv"."first_discovered"
 )
 SELECT 
     DISTINCT ON ("da"."mac_address") "da"."mac_address" "mac",
@@ -23,7 +28,7 @@ SELECT
     "fv"."first_discovered" "discovered"
 FROM "postgres"."public"."dim_asset" "da"
     JOIN "pKey" USING ("asset_id")
-    JOIN "postgres"."public"."fact_asset_vulnerability_instance" "favi" USING ("asset_id")
+    JOIN "postgres"."public"."fact_asset_vulnerability_instance" "favi" USING ("vulnerability_id")
     JOIN "postgres"."public"."dim_vulnerability" "dv" USING ("vulnerability_id")
     JOIN "postgres"."public"."fact_vulnerability" "fv" USING ("vulnerability_id")
 WHERE
